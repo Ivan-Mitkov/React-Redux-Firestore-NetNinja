@@ -5,7 +5,7 @@ export const createProject = project => {
     const db = getFirestore();
     db.collection("projects")
       .add({
-        ...project,
+        ...project,//get project from deispatched function
         authorFirstName: "Net",
         authorLastName: "Ninja",
         authorId: 12345,
