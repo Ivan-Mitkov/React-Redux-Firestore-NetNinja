@@ -1,27 +1,48 @@
 import React from "react";
+import { connect } from "react-redux";
+import { firestoreConnect } from "react-redux-firebase";
+import { compose } from "redux";
+
 
 function ProjectDetails(props) {
-    console.log(props);
-    const id=props.match.params.id;
-    console.log(id);
+  console.log("Project Detail props: ", props);
+  // const id = props.match.params.id;
+  // console.log(id);
+  let date = null;
+
   return (
     <div className="container section project-details">
       <div className="card z-depth-0">
         <div className="card-content">
-          <span className="card-title">Project Title-{id}</span>
-          <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Laboriosam, illo sapiente ab nam fuga odio? Quos recusandae ex fugiat voluptatum temporibus sapiente vel tempora dolores ratione! Cupiditate maiores tempore vitae!</p>
+          <span className="card-title">
+            {props.project.title}
+          </span>
+          <p>{props.project.content}</p>
         </div>
-        <div className='card-action grey lighten-4 grey-text'>
-            <div>
-                Posted by The Black Ninja
-            </div>
-            <div>
-                11/11/2018
-            </div>
+        <div className="card-action grey lighten-4 grey-text">
+          <div>
+            Posted by {props.project.authorFirstName}{" "}
+            {props.project.authorLastName}
+          </div>
+          <div>
+            Posted at: {(date = props.project.createdAt
+              && new Date(props.project.createdAt.seconds*1000).toDateString()
+              )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-export default ProjectDetails;
+const mapStateToProps = (state, ownProps) => {
+  const id = ownProps.match.params.id;
+  const projects = state.firestore.data.projects;
+  const project = projects ? projects[id] : false;
+  console.log("Project Detailes state: ", state);
+  // calling projects: from root reducer get project wich is projectReducer and from init state of project reducer get projects
+  return { project: project };
+};
+export default compose(
+  connect(mapStateToProps),
+  firestoreConnect([{ collection: "projects" }]) // sync projects collection from Firestore into redux
+)(ProjectDetails);
